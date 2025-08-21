@@ -5,6 +5,7 @@
 */
 
 #include "weather_filter.h"
+#include "settings.h"
 #include <math.h>
 #include <string.h>
 
@@ -363,6 +364,10 @@ EnvironmentalConditions getCurrentEnvironmentalConditions() {
 }
 
 bool isMotionFiltered(float x, float y, float z) {
+#if WEATHER_FILTERING_ENABLED
   EnvironmentalConditions env = getCurrentEnvironmentalConditions();
   return !weatherFilter.isValidWildlifeMotion(x, y, z, env);
+#else
+  return false; // No filtering if disabled
+#endif
 }

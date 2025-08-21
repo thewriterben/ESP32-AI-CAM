@@ -15,7 +15,10 @@
 #include "SparkFunBME280.h"
 #include <SparkFunTSL2561.h>
 #include <ADXL345.h>
+#include "settings.h"
+#if WEATHER_FILTERING_ENABLED
 #include "weather_filter.h"
+#endif
 
 BME280 sf_bme; //Uses default I2C address 0x77
 SFE_TSL2561 sf_tsl;
@@ -227,10 +230,12 @@ void sf_setup() {
   Serial.println(" g");
   Serial.println("**********************");
   
+#if WEATHER_FILTERING_ENABLED
   // Initialize weather filter with current sensitivity
   Serial.println("Initializing weather filter...");
   weatherFilter.setBaseSensitivity(55.0); // Match ADXL threshold
   Serial.println("Weather filter initialized");
+#endif
 }
 
 void en_inter(){
@@ -290,12 +295,16 @@ void ADXL_ISR() {
   // Do not call again until you need to recheck for triggered actions
   byte interrupts = sf_adxl.getInterruptSource();
   
+#if WEATHER_FILTERING_ENABLED
   // Get current accelerometer readings for weather filtering
   int x, y, z;
   sf_adxl.readXYZ(&x, &y, &z);
   
   // Apply weather motion filtering
   bool motion_filtered = isMotionFiltered(x, y, z);
+#else
+  bool motion_filtered = false; // No filtering if disabled
+#endif
   
   // Free Fall Detection
   if(sf_adxl.triggered(interrupts, ADXL345_FREE_FALL)){
@@ -320,8 +329,10 @@ void ADXL_ISR() {
       //add code here to do when valid wildlife activity is sensed
     } else {
       Serial.println("*** ACTIVITY *** (FILTERED - Weather/Environmental Motion)");
+#if WEATHER_FILTERING_ENABLED
       // Log the filtering reason
       weatherFilter.printDiagnostics();
+#endif
     }
   }
   
