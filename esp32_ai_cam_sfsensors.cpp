@@ -15,6 +15,7 @@
 #include "SparkFunBME280.h"
 #include <SparkFunTSL2561.h>
 #include <ADXL345.h>
+#include "weather_filter.h"
 
 BME280 sf_bme; //Uses default I2C address 0x77
 SFE_TSL2561 sf_tsl;
@@ -225,6 +226,11 @@ void sf_setup() {
   Serial.print(az);
   Serial.println(" g");
   Serial.println("**********************");
+  
+  // Initialize weather filter with current sensitivity
+  Serial.println("Initializing weather filter...");
+  weatherFilter.setBaseSensitivity(55.0); // Match ADXL threshold
+  Serial.println("Weather filter initialized");
 }
 
 void en_inter(){
@@ -284,10 +290,21 @@ void ADXL_ISR() {
   // Do not call again until you need to recheck for triggered actions
   byte interrupts = sf_adxl.getInterruptSource();
   
+  // Get current accelerometer readings for weather filtering
+  int x, y, z;
+  sf_adxl.readXYZ(&x, &y, &z);
+  
+  // Apply weather motion filtering
+  bool motion_filtered = isMotionFiltered(x, y, z);
+  
   // Free Fall Detection
   if(sf_adxl.triggered(interrupts, ADXL345_FREE_FALL)){
-    Serial.println("*** FREE FALL ***");
-    //add code here to do when free fall is sensed
+    if (!motion_filtered) {
+      Serial.println("*** FREE FALL *** (VALID)");
+      //add code here to do when free fall is sensed
+    } else {
+      Serial.println("*** FREE FALL *** (FILTERED - Weather Event)");
+    }
   } 
   
   // Inactivity
@@ -296,21 +313,35 @@ void ADXL_ISR() {
      //add code here to do when inactivity is sensed
   }
   
-  // Activity
+  // Activity - Main motion detection with weather filtering
   if(sf_adxl.triggered(interrupts, ADXL345_ACTIVITY)){
-    Serial.println("*** ACTIVITY ***"); 
-     //add code here to do when activity is sensed
+    if (!motion_filtered) {
+      Serial.println("*** ACTIVITY *** (VALID WILDLIFE MOTION)");
+      //add code here to do when valid wildlife activity is sensed
+    } else {
+      Serial.println("*** ACTIVITY *** (FILTERED - Weather/Environmental Motion)");
+      // Log the filtering reason
+      weatherFilter.printDiagnostics();
+    }
   }
   
   // Double Tap Detection
   if(sf_adxl.triggered(interrupts, ADXL345_DOUBLE_TAP)){
-    Serial.println("*** DOUBLE TAP ***");
-     //add code here to do when a 2X tap is sensed
+    if (!motion_filtered) {
+      Serial.println("*** DOUBLE TAP *** (VALID)");
+      //add code here to do when a valid 2X tap is sensed
+    } else {
+      Serial.println("*** DOUBLE TAP *** (FILTERED - Weather Event)");
+    }
   }
   
   // Tap Detection
   if(sf_adxl.triggered(interrupts, ADXL345_SINGLE_TAP)){
-    Serial.println("*** TAP ***");
-     //add code here to do when a tap is sensed
+    if (!motion_filtered) {
+      Serial.println("*** TAP *** (VALID)");
+      //add code here to do when a valid tap is sensed
+    } else {
+      Serial.println("*** TAP *** (FILTERED - Weather Event)");
+    }
   } 
 }

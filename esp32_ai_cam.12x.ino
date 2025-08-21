@@ -102,6 +102,8 @@ Global variables use 55612 bytes (16%) of dynamic memory, leaving 272068 bytes f
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_camera.h"
+#include "weather_filter.h"
+#include "wildlife_camera.h"
 
 float get_bme_temperature();
 float get_bme_pressure();
@@ -677,6 +679,17 @@ void setup() {
   //ram();
   dis_inter();
 
+  // Initialize Wildlife Camera System
+  Serial.println("Initializing Wildlife Trail Camera System...");
+  if (wildlifeCamera.begin()) {
+    Serial.println("Wildlife camera system ready");
+    // Set home position (center of range)
+    wildlifeCamera.setHomePosition(135, 90);
+    wildlifeCamera.printStatus();
+  } else {
+    Serial.println("Wildlife camera initialization failed");
+  }
+
   initWifi(ssid, pass);
   initTime();
 
@@ -692,6 +705,16 @@ void setup() {
     for (int i = 0; i < 10; i++) {
       ADXL_ISR();
     }
+  }
+
+  // Perform wildlife camera scheduled tasks
+  wildlifeCamera.performScheduledTasks();
+  
+  // Check if we should perform a periodic sweep
+  static unsigned long last_sweep = 0;
+  if (millis() - last_sweep > 3600000) { // Every hour
+    wildlifeCamera.performPeriodicSweep();
+    last_sweep = millis();
   }
 
   dis_inter();
