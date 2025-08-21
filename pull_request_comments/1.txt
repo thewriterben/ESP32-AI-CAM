@@ -1,0 +1,1 @@
+IMPORTANT REQUIREMENT: Integrate comprehensive weather and water movement filtering to eliminate false triggers from rain, wind, snow, moving vegetation, and water reflections. This should include multi-sensor validation, temporal pattern analysis, and environmental condition awareness to ensure only genuine wildlife movement triggers the system.
