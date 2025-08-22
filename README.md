@@ -1,11 +1,60 @@
-# ESP32-AI-CAM
-ESP32-CAM with Microsoft Azure AI Computer Vision and Storage Blobs
+# ESP32-AI-CAM: Wildlife Trail Camera System
 
-This propgram uses an ESP32-CAM module, with several sensors attached with I2C, to take pictures with the original ov2640 2MP camera, or an ov5640 5MP camera, and then send the photo first to Microsoft Cloud Azure for computer vision analysis, returning its analysis of the picture, and then sends the picture to Azure Blob Storage, along with sensors readings date, time, temperature, pressure, humidity, and light level, which can be further analysed by Azure cloud level functions and databases.  A backup copy of all the pictures and data is stored on the SD card of the ESP32-CAM.  The current sensors are a BME280 for temperature, pressure, and humidity, and a TSL2561 for light.  An ADXL345 is used to wake up the ESP32-CAM whenever there is a tap or motion of the camera.  
+**Complete wildlife monitoring solution using LilyGO T-Camera Plus S3 with solar power, AI detection, and mesh networking.**
 
-See https://github.com/jameszah/ESP32-AI-CAM/tree/main/samples for some sample photos.  The first bunch are ov2640, and the last is ov5640.  The filename of the picture contains the meta-data in a json like format for the temperature, humidity, etc recorded at the time of the picture.  It is designed for more complicated functions than taking pictures of your phone!  The Azure computer vision got Mozart wrong, apparently Marcia Davenport had something to do with that painting.
+## 🦌 Wildlife Trail Camera Features
 
-More details coming on hardware and software installation and design.
+### Core Capabilities
+- **Solar-Powered Operation**: 2W solar panel with 18650 battery for weeks of autonomous operation
+- **AI Wildlife Detection**: On-device species classification and behavioral analysis
+- **Pan/Tilt Tracking**: 270°/180° servo-controlled camera positioning with automated tracking
+- **PIR Motion Detection**: Wildlife-optimized motion sensing with false positive filtering
+- **LoRa Mesh Network**: Long-range communication between multiple camera units (2+ km range)
+- **Weatherproof Design**: IP67-rated 3D printed enclosure for all-weather operation
+
+### Advanced Intelligence
+- **Species Classification**: Automatic detection of mammals, birds, and other wildlife
+- **Behavioral Analysis**: Feeding, resting, and alert behavior recognition
+- **Multi-Camera Coordination**: Synchronized recording and tracking across camera network
+- **Environmental Adaptation**: Automatic day/night mode switching and weather compensation
+- **Power Management**: Intelligent deep sleep and conservation modes for extended battery life
+
+## 🏗️ Hardware Architecture
+
+### LilyGO T-Camera Plus S3 Integration
+- **ESP32-S3 Processor**: Dual-core with AI acceleration
+- **5MP OV5640 Camera**: High-resolution wildlife photography
+- **8MB PSRAM**: On-device AI inference capability
+- **Solar Charging**: MPPT charge controller for maximum efficiency
+
+### Power System Design
+```
+Solar Panel (6V 2W) → Charge Controller → 18650 Battery (3.7V) → T-Camera Plus S3
+                                                               ↳ Servo Power (5V)
+                                                               ↳ IR LED Array (12V)
+```
+
+## 📁 Project Structure
+
+### Wildlife Camera Modules
+- `wildlife_trail_camera_main.ino` - Main program integrating all systems
+- `tcamera_plus_s3_config.h` - Hardware configuration for T-Camera Plus S3
+- `wildlife_servo_control.h/cpp` - Pan/tilt servo management and tracking
+- `wildlife_pir_motion.h/cpp` - Advanced PIR motion detection with filtering
+- `wildlife_lora_comm.h/cpp` - LoRa mesh networking and communication
+- `wildlife_power_management.h/cpp` - Solar charging and battery management
+- `wildlife_ai_detection.h/cpp` - AI-powered wildlife detection and classification
+
+### Documentation and Design
+- `WILDLIFE_CAMERA_DOCUMENTATION.md` - Comprehensive setup and operation guide
+- `3D_ENCLOSURE_DESIGN.md` - Complete 3D printing specifications and assembly
+
+### Legacy ESP32-CAM Support
+The system preserves all original ESP32-AI-CAM functionality:
+- Azure IoT Hub integration with blob upload and machine vision
+- Environmental sensor monitoring (BME280, TSL2561, ADXL345)  
+- SD card storage with JSON metadata
+- Deep sleep power management
 
 ## Hardware - simple
 
